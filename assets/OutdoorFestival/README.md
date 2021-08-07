@@ -1,0 +1,1 @@
+The Outdoor Festival scene was created by the [Mozilla Hubs Team](https://hubs.mozilla.com).

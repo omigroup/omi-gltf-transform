@@ -5,7 +5,7 @@ import path from "path";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS, DracoMeshCompression } from '@gltf-transform/extensions';
 import draco3d from "draco3dgltf";
-import { transformHubsToOMI } from "../src/lib.js";
+import { HubsComponentsExtension, transformHubsComponentsToOMI, HubsAudioComponent, OMIAudioEmitterExtension } from "../src/lib.js";
 
 // TODO: Add compress arg
 const compress = false;
@@ -44,10 +44,17 @@ async function main([_node, _script, srcPath, destPath]) {
   }
 
   const io = new NodeIO()
-    .registerExtensions(ALL_EXTENSIONS)
+    .registerExtensions([
+      ...ALL_EXTENSIONS,
+      HubsComponentsExtension,
+      OMIAudioEmitterExtension
+    ])
     .registerDependencies({
       'draco3d.decoder': await draco3d.createDecoderModule(),
       'draco3d.encoder': await draco3d.createEncoderModule(),
+      'hubs-components': [
+        HubsAudioComponent
+      ]
     });
 
   const doc = io.read(srcPath);
@@ -62,7 +69,11 @@ async function main([_node, _script, srcPath, destPath]) {
       });
   }
 
-  await transformHubsToOMI(doc);
+  await doc.transform(transformHubsComponentsToOMI({
+    componentMappings: {
+      "audio": OMIAudioEmitterExtension
+    }
+  }));
 
   io.write(destPath, doc);
 }

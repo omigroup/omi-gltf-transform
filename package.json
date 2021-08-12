@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "./bin/omi-gltf-transform.js",
-    "example": "./bin/omi-gltf-transform.js ./assets/OutdoorFestival/glb/OutdoorFestival.glb ./out"
+    "example-gltf": "./bin/omi-gltf-transform.js ./assets/OutdoorFestival/gltf/OutdoorFestival.gltf ./out/OutdoorFestival_out.gltf",
+    "example-glb": "./bin/omi-gltf-transform.js ./assets/OutdoorFestival/gltf/OutdoorFestival.gltf ./out/OutdoorFestival_out.glb"
   },
   "bin": {
     "omi-gltf-transform": "./bin/omi-gltf-transform.js"
@@ -15,6 +16,7 @@
   "dependencies": {
     "@gltf-transform/core": "^0.12.7",
     "@gltf-transform/extensions": "^0.12.7",
-    "draco3dgltf": "^1.4.1"
+    "draco3dgltf": "^1.4.1",
+    "isomorphic-unfetch": "^3.1.0"
   }
 }

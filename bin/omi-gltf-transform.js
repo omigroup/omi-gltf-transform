@@ -30,9 +30,15 @@ async function main([_node, _script, srcPath, destPath]) {
   }
 
   if (destPath) {
-    const { ext: destExt } = path.parse(destPath);
-
     destPath = path.resolve(destPath);
+
+    const { ext: destExt, dir } = path.parse(destPath);
+
+    try {
+      await fs.stat(dir);
+    } catch {
+      await fs.mkdir(dir, { recursive: true });
+    }
 
     if (!destExt) {
       destPath = path.join(destPath, `${srcName}_out${srcExt}`);

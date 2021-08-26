@@ -14,9 +14,10 @@
   "author": "Open Metaverse Interoperability Group",
   "license": "MIT",
   "dependencies": {
-    "@gltf-transform/core": "^0.12.7",
-    "@gltf-transform/extensions": "^0.12.7",
+    "@gltf-transform/core": "^0.12.10",
+    "@gltf-transform/extensions": "^0.12.10",
     "draco3dgltf": "^1.4.1",
-    "isomorphic-unfetch": "^3.1.0"
+    "isomorphic-unfetch": "^3.1.0",
+    "node": "^16.6.1"
   }
 }

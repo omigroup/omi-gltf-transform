@@ -59,9 +59,7 @@ export class HubsComponentsExtension extends Extension {
   }
 
   _beforeNodes(context) {
-    const json = context.jsonDoc;
-
-    console.log("_beforeNodes");
+    const { json } = context.jsonDoc;
 
     for (const nodeDef of json.nodes) {
       const extensions = nodeDef.extensions;
@@ -80,15 +78,12 @@ export class HubsComponentsExtension extends Extension {
       const audioParams = hubsComponents["audio-params"];
 
       if (audio && !audioParams) {
-        console.log(hubsComponents, audio);
         this._migrateAudioToAudioParams(hubsComponents, audio)
       }
     }
   }
 
   preread(context, propertyType) {
-    console.log("preread");
-
     if (propertyType === PropertyType.NODE) {
       this._beforeNodes(context);
     }

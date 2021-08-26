@@ -149,8 +149,8 @@ export class OMIAudioEmitter extends ExtensionProperty {
   _loop = false;
   _autoPlay = false;
   _muted = false;
-  _coneInnerAngle = 360;
-  _coneOuterAngle = 360;
+  _coneInnerAngle = Math.PI * 2;
+  _coneOuterAngle = Math.PI * 2;
   _coneOuterGain = 0;
   _distanceModel = "inverse";
   _maxDistance = 10000;

@@ -31,6 +31,8 @@ export function hubsToOMI() {
   };
 }
 
+const DEG2RAD = Math.PI / 180;
+
 async function hubsToOMIAudioEmitter(doc, property, hubsComponents) {
   const extension = doc.createExtension(OMIAudioEmitterExtension);
 
@@ -49,8 +51,8 @@ async function hubsToOMIAudioEmitter(doc, property, hubsComponents) {
   const audioParams = hubsComponents.getComponent("audio-params");
   audioEmitter._type = audioParams.audioType === "pannernode" ? "positional" : "global";
   audioEmitter._volume = audioParams.gain;
-  audioEmitter._coneInnerAngle = audioParams.coneInnerAngle;
-  audioEmitter._coneOuterAngle = audioParams.coneOuterAngle;
+  audioEmitter._coneInnerAngle = audioParams.coneInnerAngle * DEG2RAD;
+  audioEmitter._coneOuterAngle = audioParams.coneOuterAngle * DEG2RAD;
   audioEmitter._coneOuterGain = audioParams.coneOuterGain;
   audioEmitter._distanceModel = audioParams.distanceModel;
   audioEmitter._maxDistance = audioParams.maxDistance;

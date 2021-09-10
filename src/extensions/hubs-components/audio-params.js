@@ -7,24 +7,24 @@ export class HubsAudioParamsComponent extends HubsComponent {
 
   read(context, componentDef) {
     this.audioType = componentDef.audioType ? componentDef.audioType : "stereo";
-    this.gain = componentDef.gain === undefined ? 0.5 : componentDef.gain;
+    this.gain = componentDef.gain == undefined ? 0.5 : componentDef.gain;
     this.distanceModel = componentDef.distanceModel || "inverse";
     this.rolloffFactor =
-      componentDef.rolloffFactor === undefined ? 1 : componentDef.rolloffFactor;
+      componentDef.rolloffFactor == undefined ? 1 : componentDef.rolloffFactor;
     this.refDistance =
-      componentDef.refDistance === undefined ? 1 : componentDef.refDistance;
+      componentDef.refDistance == undefined ? 1 : componentDef.refDistance;
     this.maxDistance =
-      componentDef.maxDistance === undefined ? 10000 : componentDef.maxDistance;
+      componentDef.maxDistance == undefined ? 10000 : componentDef.maxDistance;
     this.coneInnerAngle =
-      componentDef.coneInnerAngle === undefined
+      componentDef.coneInnerAngle == undefined
         ? 360
         : componentDef.coneInnerAngle;
     this.coneOuterAngle =
-      componentDef.coneOuterAngle === undefined
+      componentDef.coneOuterAngle == undefined
         ? 0
         : componentDef.coneOuterAngle;
     this.coneOuterGain =
-      componentDef.coneOuterGain === undefined ? 0 : componentDef.coneOuterGain;
+      componentDef.coneOuterGain == undefined ? 0 : componentDef.coneOuterGain;
     return this;
   }
 

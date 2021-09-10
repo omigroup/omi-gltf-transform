@@ -40,17 +40,17 @@ async function hubsToOMIAudioEmitter(doc, property, hubsComponents) {
 
   const audio = hubsComponents.getComponent("audio");
 
-  const clip = extension.createAudioClip();
+  const audioSource = extension.createAudioSource();
   const res = await fetch(audio.src);
   const data = await res.arrayBuffer();
-  clip.setData(data);
-  audioEmitter.setClip(clip);
+  audioSource.setData(data);
+  audioEmitter.setSource(audioSource);
   audioEmitter._loop = audio.loop;
   audioEmitter._autoPlay = audio.autoPlay;
 
   const audioParams = hubsComponents.getComponent("audio-params");
   audioEmitter._type = audioParams.audioType === "pannernode" ? "positional" : "global";
-  audioEmitter._volume = audioParams.gain;
+  audioEmitter._gain = audioParams.gain;
   audioEmitter._coneInnerAngle = audioParams.coneInnerAngle * DEG2RAD;
   audioEmitter._coneOuterAngle = audioParams.coneOuterAngle * DEG2RAD;
   audioEmitter._coneOuterGain = audioParams.coneOuterGain;
@@ -59,7 +59,21 @@ async function hubsToOMIAudioEmitter(doc, property, hubsComponents) {
   audioEmitter._refDistance = audioParams.refDistance;
   audioEmitter._rolloffFactor = audioParams.rolloffFactor;
 
-  property.setExtension(OMI_AUDIO_EMITTER, audioEmitter);
+  if (audioEmitter._type === "global") {
+    const scene = doc.getRoot().getDefaultScene();
+
+    let sceneAudioEmitters = scene.getExtension(OMI_AUDIO_EMITTER);
+
+    if (!sceneAudioEmitters) {
+      sceneAudioEmitters = extension.createSceneAudioEmitters();
+      scene.setExtension(OMI_AUDIO_EMITTER, sceneAudioEmitters);
+    }
+
+    sceneAudioEmitters.addAudioEmitter(audioEmitter);
+  } else {
+    property.setExtension(OMI_AUDIO_EMITTER, audioEmitter);
+  }
+  
   hubsComponents.removeComponent("audio");
   hubsComponents.removeComponent("audio-params");
 }

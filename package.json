@@ -1,7 +1,6 @@
 {
   "name": "omi-gltf-transform",
   "version": "0.0.1",
-  "private": true,
   "type": "module",
   "scripts": {
     "start": "./bin/omi-gltf-transform.js",
@@ -11,6 +10,11 @@
   "bin": {
     "omi-gltf-transform": "./bin/omi-gltf-transform.js"
   },
+  "main": "./src/lib.js",
+  "files": [
+    "src/**/*",
+    "bin/*"
+  ],
   "author": "Open Metaverse Interoperability Group",
   "license": "MIT",
   "dependencies": {

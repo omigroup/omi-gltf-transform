@@ -14,6 +14,8 @@ export class OMIAudioEmitterExtension extends Extension {
 
   extensionName = OMIAudioEmitterExtension.EXTENSION_NAME;
 
+  prewriteTypes = [PropertyType.BUFFER];
+
   createSceneAudioEmitters() {
     return new OMISceneAudioEmitters(this.doc.getGraph(), this);
   }
@@ -28,6 +30,32 @@ export class OMIAudioEmitterExtension extends Extension {
 
   // TODO: Read OMI_audio_emitter
   read() {}
+
+  prewrite(context, propertyType) {
+    if (
+      propertyType !== PropertyType.BUFFER ||
+      this.properties.size === 0 ||
+      context.options.format !== Format.GLB
+    ) {
+      return this;
+    }
+
+    const audioSources = Array.from(this.properties).filter(
+      (property) => property.propertyType === "OMIAudioSource"
+    );
+
+    for (const audioSource of audioSources) {
+      const buffer = this.doc.getRoot().listBuffers()[0];
+
+      if (!context.otherBufferViews.has(buffer)) {
+        context.otherBufferViews.set(buffer, []);
+      }
+
+      context.otherBufferViews.get(buffer).push(audioSource._data);
+    }
+
+    return this;
+  }
 
   write(context) {
     if (this.properties.size === 0) {
@@ -48,21 +76,8 @@ export class OMIAudioEmitterExtension extends Extension {
       const audioSourceDef = {};
 
       if (context.options.format === Format.GLB) {
-        const buffer = this.doc.getRoot().listBuffers()[0];
-
-        if (!context.otherBufferViews.has(buffer)) {
-          context.otherBufferViews.set(buffer, []);
-        }
-
-        context.otherBufferViews.get(buffer).push(audioSource._data);
-
-        audioSourceDef.bufferView = json.bufferViews.length;
+        audioSourceDef.bufferView = context.otherBufferViewsIndexMap.get(audioSource._data);
         audioSourceDef.mimeType = "audio/mpeg";
-        json.bufferViews.push({
-          buffer: 0,
-          byteOffset: -1, // determined while iterating buffers, in Writer.ts.
-          byteLength: audioSource._data.byteLength,
-        });
       } else {
         const uri = `${context.options.basename}_audio${audioSourceIndex++}.mp3`;
         context.jsonDoc.resources[uri] = audioSource._data;

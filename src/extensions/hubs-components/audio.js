@@ -1,36 +1,39 @@
-import { HubsComponent } from "../MOZ_hubs_components.js";
+import { ExtensionProperty  } from "@gltf-transform/core";
+import { MOZ_HUBS_COMPONENTS } from "../MOZ_hubs_components.js";
 
-export class HubsAudioComponent extends HubsComponent {
+export class HubsAudioComponent extends ExtensionProperty {
+  static EXTENSION_NAME = MOZ_HUBS_COMPONENTS;
   static componentName = "audio";
 
-  componentName = "audio";
+  init() {
+    this.extensionName = MOZ_HUBS_COMPONENTS;
+    this.propertyType = "HubsAudioComponent";
+    this.componentName = "audio";
+  }
+
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      src: "",
+      controls: false,
+      autoPlay: false,
+      loop: false,
+    });
+  }
 
   read(context, componentDef) {
-    this.src = componentDef.src;
-    this.controls = componentDef.controls || false;
-    this.autoPlay = componentDef.autoPlay || false;
-    this.loop = componentDef.loop || false;
+    if (componentDef.src) this.set("src", componentDef.src);
+    if (componentDef.controls) this.set("controls", componentDef.controls);
+    if (componentDef.autoPlay) this.set("autoPlay", componentDef.autoPlay);
+    if (componentDef.loop) this.set("loop", componentDef.loop);
     return this;
   }
 
   write(context) {
     return {
-      src: this.src,
-      controls: this.controls,
-      autoPlay: this.autoPlay,
-      loop: this.loop,
+      src: this.get("src"),
+      controls: this.get("controls"),
+      autoPlay: this.get("autoPlay"),
+      loop: this.get("loop"),
     };
-  }
-
-  clone() {
-    return new HubsAudioComponent().copy(this);
-  }
-
-  copy(other) {
-    this.src = other.src;
-    this.controls = other.controls;
-    this.autoPlay = other.autoPlay;
-    this.loop = other.loop;
-    return this;
   }
 }

@@ -41,25 +41,25 @@ async function hubsToOMIAudioEmitter(doc, property, hubsComponents) {
   const audio = hubsComponents.getComponent("audio");
 
   const audioSource = extension.createAudioSource();
-  const res = await fetch(audio.src);
+  const res = await fetch(audio.get("src"));
   const data = await res.arrayBuffer();
-  audioSource.setData(data);
+  audioSource.setData(new Uint8Array(data));
   audioEmitter.setSource(audioSource);
-  audioEmitter._loop = audio.loop;
-  audioEmitter._autoPlay = audio.autoPlay;
+  audioEmitter.set("loop", audio.get("loop"));
+  audioEmitter.set("autoPlay", audio.get("autoPlay"));
 
   const audioParams = hubsComponents.getComponent("audio-params");
-  audioEmitter._type = audioParams.audioType === "pannernode" ? "positional" : "global";
-  audioEmitter._gain = audioParams.gain;
-  audioEmitter._coneInnerAngle = audioParams.coneInnerAngle * DEG2RAD;
-  audioEmitter._coneOuterAngle = audioParams.coneOuterAngle * DEG2RAD;
-  audioEmitter._coneOuterGain = audioParams.coneOuterGain;
-  audioEmitter._distanceModel = audioParams.distanceModel;
-  audioEmitter._maxDistance = audioParams.maxDistance;
-  audioEmitter._refDistance = audioParams.refDistance;
-  audioEmitter._rolloffFactor = audioParams.rolloffFactor;
+  audioEmitter.set("type", audioParams.get("audioType") === "pannernode" ? "positional" : "global");
+  audioEmitter.set("gain", audioParams.get("gain"));
+  audioEmitter.set("coneInnerAngle", audioParams.get("coneInnerAngle") * DEG2RAD);
+  audioEmitter.set("coneOuterAngle", audioParams.get("coneOuterAngle") * DEG2RAD);
+  audioEmitter.set("coneOuterGain", audioParams.get("coneOuterGain"));
+  audioEmitter.set("distanceModel", audioParams.get("distanceModel"));
+  audioEmitter.set("maxDistance", audioParams.get("maxDistance"));
+  audioEmitter.set("refDistance", audioParams.get("refDistance"));
+  audioEmitter.set("rolloffFactor", audioParams.get("rolloffFactor"));
 
-  if (audioEmitter._type === "global") {
+  if (audioEmitter.get("type") === "global") {
     const scene = doc.getRoot().getDefaultScene();
 
     let sceneAudioEmitters = scene.getExtension(OMI_AUDIO_EMITTER);
@@ -73,7 +73,7 @@ async function hubsToOMIAudioEmitter(doc, property, hubsComponents) {
   } else {
     property.setExtension(OMI_AUDIO_EMITTER, audioEmitter);
   }
-  
+
   hubsComponents.removeComponent("audio");
   hubsComponents.removeComponent("audio-params");
 }

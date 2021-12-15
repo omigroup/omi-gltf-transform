@@ -1,61 +1,54 @@
-import { HubsComponent } from "../MOZ_hubs_components.js";
+import { ExtensionProperty } from "@gltf-transform/core";
+import { MOZ_HUBS_COMPONENTS } from "../MOZ_hubs_components.js";
 
-export class HubsAudioParamsComponent extends HubsComponent {
+export class HubsAudioParamsComponent extends ExtensionProperty {
+  static EXTENSION_NAME = MOZ_HUBS_COMPONENTS;
   static componentName = "audio-params";
 
-  componentName = "audio-params";
+  init() {
+    this.extensionName = MOZ_HUBS_COMPONENTS;
+    this.propertyType = "HubsAudioParamsComponent";
+    this.componentName = "audio-params";
+  }
+
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      audioType: "stereo",
+      gain: 0.5,
+      distanceModel: "inverse",
+      rolloffFactor: 1,
+      refDistance: 1,
+      maxDistance: 10000,
+      coneInnerAngle: 360,
+      coneOuterAngle: 0,
+      coneOuterGain: 0,
+    });
+  }
 
   read(context, componentDef) {
-    this.audioType = componentDef.audioType ? componentDef.audioType : "stereo";
-    this.gain = componentDef.gain == undefined ? 0.5 : componentDef.gain;
-    this.distanceModel = componentDef.distanceModel || "inverse";
-    this.rolloffFactor =
-      componentDef.rolloffFactor == undefined ? 1 : componentDef.rolloffFactor;
-    this.refDistance =
-      componentDef.refDistance == undefined ? 1 : componentDef.refDistance;
-    this.maxDistance =
-      componentDef.maxDistance == undefined ? 10000 : componentDef.maxDistance;
-    this.coneInnerAngle =
-      componentDef.coneInnerAngle == undefined
-        ? 360
-        : componentDef.coneInnerAngle;
-    this.coneOuterAngle =
-      componentDef.coneOuterAngle == undefined
-        ? 0
-        : componentDef.coneOuterAngle;
-    this.coneOuterGain =
-      componentDef.coneOuterGain == undefined ? 0 : componentDef.coneOuterGain;
+    if (componentDef.audioType) this.set("audioType", componentDef.audioType)
+    if (componentDef.gain !== undefined) this.set("gain", componentDef.gain);
+    if (componentDef.distanceModel) this.set("distanceModel", componentDef.distanceModel);
+    if (componentDef.rolloffFactor !== undefined) this.set("rolloffFactor", componentDef.rolloffFactor);
+    if (componentDef.refDistance !== undefined) this.set("refDistance", componentDef.refDistance);
+    if (componentDef.maxDistance !== undefined) this.set("maxDistance", componentDef.maxDistance);
+    if (componentDef.coneInnerAngle !== undefined) this.set("coneInnerAngle", componentDef.coneInnerAngle);
+    if (componentDef.coneOuterAngle !== undefined) this.set("coneOuterAngle", componentDef.coneOuterAngle);
+    if (componentDef.coneOuterGain !== undefined) this.set("coneOuterGain", componentDef.coneOuterGain);
     return this;
   }
 
   write(context) {
     return {
-      audioType: this.audioType,
-      gain: this.gain,
-      distanceModel: this.distanceModel,
-      rolloffFactor: this.rolloffFactor,
-      refDistance: this.refDistance,
-      maxDistance: this.maxDistance,
-      coneInnerAngle: this.coneInnerAngle,
-      coneOuterAngle: this.coneOuterAngle,
-      coneOuterGain: this.coneOuterGain,
+      audioType: this.get("audioType"),
+      gain: this.get("gain"),
+      distanceModel: this.get("distanceModel"),
+      rolloffFactor: this.get("rolloffFactor"),
+      refDistance: this.get("refDistance"),
+      maxDistance: this.get("maxDistance"),
+      coneInnerAngle: this.get("coneInnerAngle"),
+      coneOuterAngle: this.get("coneOuterAngle"),
+      coneOuterGain: this.get("coneOuterGain"),
     };
-  }
-
-  clone() {
-    return new HubsAudioParamsComponent().copy(this);
-  }
-
-  copy(other) {
-    this.audioType = other.audioType;
-    this.gain = other.gain;
-    this.distanceModel = other.distanceModel;
-    this.rolloffFactor = other.rolloffFactor;
-    this.refDistance = other.refDistance;
-    this.maxDistance = other.maxDistance;
-    this.coneInnerAngle = other.coneInnerAngle;
-    this.coneOuterAngle = other.coneOuterAngle;
-    this.coneOuterGain = other.coneOuterGain;
-    return this;
   }
 }

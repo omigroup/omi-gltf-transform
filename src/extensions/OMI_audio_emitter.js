@@ -1,8 +1,6 @@
 import {
-  COPY_IDENTITY,
   Extension,
   ExtensionProperty,
-  GraphChild,
   PropertyType,
   Format
 } from "@gltf-transform/core";
@@ -17,15 +15,15 @@ export class OMIAudioEmitterExtension extends Extension {
   prewriteTypes = [PropertyType.BUFFER];
 
   createSceneAudioEmitters() {
-    return new OMISceneAudioEmitters(this.doc.getGraph(), this);
+    return new OMISceneAudioEmitters(this.document.getGraph());
   }
 
   createAudioEmitter() {
-    return new OMIAudioEmitter(this.doc.getGraph(), this);
+    return new OMIAudioEmitter(this.document.getGraph());
   }
 
   createAudioSource() {
-    return new OMIAudioSource(this.doc.getGraph(), this);
+    return new OMIAudioSource(this.document.getGraph());
   }
 
   // TODO: Read OMI_audio_emitter
@@ -45,13 +43,13 @@ export class OMIAudioEmitterExtension extends Extension {
     );
 
     for (const audioSource of audioSources) {
-      const buffer = this.doc.getRoot().listBuffers()[0];
+      const buffer = this.document.getRoot().listBuffers()[0];
 
       if (!context.otherBufferViews.has(buffer)) {
         context.otherBufferViews.set(buffer, []);
       }
 
-      context.otherBufferViews.get(buffer).push(audioSource._data);
+      context.otherBufferViews.get(buffer).push(audioSource.getData());
     }
 
     return this;
@@ -76,11 +74,11 @@ export class OMIAudioEmitterExtension extends Extension {
       const audioSourceDef = {};
 
       if (context.options.format === Format.GLB) {
-        audioSourceDef.bufferView = context.otherBufferViewsIndexMap.get(audioSource._data);
+        audioSourceDef.bufferView = context.otherBufferViewsIndexMap.get(audioSource.getData());
         audioSourceDef.mimeType = "audio/mpeg";
       } else {
         const uri = `${context.options.basename}_audio${audioSourceIndex++}.mp3`;
-        context.jsonDoc.resources[uri] = audioSource._data;
+        context.jsonDoc.resources[uri] = audioSource.getData();
         audioSourceDef.uri = uri;
       }
 
@@ -95,37 +93,35 @@ export class OMIAudioEmitterExtension extends Extension {
     const audioEmitterIndexMap = new Map();
 
     for (const audioEmitter of audioEmitters) {
-      const sourceIndex = audioSources.findIndex(
-        (source) => audioEmitter.source.getChild() === source
-      );
+      const sourceIndex = audioSources.indexOf(audioEmitter.getSource());
 
       if (sourceIndex === -1) {
         throw new Error("Error getting audio source index");
       }
 
       const audioEmitterDef = {
-        type: audioEmitter._type,
-        gain: audioEmitter._gain,
-        loop: audioEmitter._loop,
-        autoPlay: audioEmitter._autoPlay,
+        type: audioEmitter.get("type"),
+        gain: audioEmitter.get("gain"),
+        loop: audioEmitter.get("loop"),
+        autoPlay: audioEmitter.get("autoPlay"),
         source: sourceIndex,
       };
 
-      if (audioEmitter._type === "positional") {
-        audioEmitterDef.coneInnerAngle = audioEmitter._coneInnerAngle;
-        audioEmitterDef.coneOuterAngle = audioEmitter._coneOuterAngle;
-        audioEmitterDef.coneOuterGain = audioEmitter._coneOuterGain;
-        audioEmitterDef.distanceModel = audioEmitter._distanceModel;
-        audioEmitterDef.maxDistance = audioEmitter._maxDistance;
-        audioEmitterDef.refDistance = audioEmitter._refDistance;
-        audioEmitterDef.rolloffFactor = audioEmitter._rolloffFactor;
+      if (audioEmitter.get("type") === "positional") {
+        audioEmitterDef.coneInnerAngle = audioEmitter.get("coneInnerAngle");
+        audioEmitterDef.coneOuterAngle = audioEmitter.get("coneOuterAngle");
+        audioEmitterDef.coneOuterGain = audioEmitter.get("coneOuterGain");
+        audioEmitterDef.distanceModel = audioEmitter.get("distanceModel");
+        audioEmitterDef.maxDistance = audioEmitter.get("maxDistance");
+        audioEmitterDef.refDistance = audioEmitter.get("refDistance");
+        audioEmitterDef.rolloffFactor = audioEmitter.get("rolloffFactor");
       }
 
       audioEmitterDefs.push(audioEmitterDef);
       audioEmitterIndexMap.set(audioEmitter, audioEmitterDefs.length - 1);
     }
 
-    const root = this.doc.getRoot();
+    const root = this.document.getRoot();
 
     // TODO: Support multiple scenes
     const scene = root.getDefaultScene();
@@ -137,7 +133,7 @@ export class OMIAudioEmitterExtension extends Extension {
       sceneDef.extensions = sceneDef.extensions || {};
 
       sceneDef.extensions[OMI_AUDIO_EMITTER] = {
-        audioEmitters: sceneAudioEmitters._audioEmitters.map(
+        audioEmitters: sceneAudioEmitters.listAudioEmitters().map(
           (audioEmitter) => audioEmitterIndexMap.get(audioEmitter)
         ),
       };
@@ -174,103 +170,83 @@ export class OMIAudioEmitterExtension extends Extension {
 export class OMISceneAudioEmitters extends ExtensionProperty {
   static EXTENSION_NAME = OMI_AUDIO_EMITTER;
 
-  propertyType = "OMISceneAudioEmitters";
-  parentTypes = [PropertyType.SCENE];
-  extensionName = OMI_AUDIO_EMITTER;
+  init() {
+    this.extensionName = OMI_AUDIO_EMITTER;
+    this.propertyType = "OMISceneAudioEmitters";
+    this.parentTypes = [PropertyType.SCENE];
+  }
 
-  _audioEmitters = [];
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {audioEmitters: []});
+  }
 
   addAudioEmitter(audioEmitter) {
-    this._audioEmitters.push(audioEmitter);
+    this.addRef('audioEmitters', audioEmitter);
   }
 
   removeAudioEmitter(audioEmitter) {
-    const index = this._audioEmitters.indexOf(audioEmitter);
-    
-    if (index !== -1) {
-      this._audioEmitters.splice(index, 1);
-    }
+    this.removeRef('audioEmitters', audioEmitter);
   }
 
-  copy(other, resolve = COPY_IDENTITY) {
-    super.copy(other, resolve);
-
-    for (const audioEmitter of other._audioEmitters) {
-      this.addAudioEmitter(resolve(audioEmitter.getChild()));
-    }
-
-    return this;
+  listAudioEmitters() {
+    return this.listRefs('audioEmitters');
   }
 }
 
 export class OMIAudioEmitter extends ExtensionProperty {
   static EXTENSION_NAME = OMI_AUDIO_EMITTER;
 
-  propertyType = "OMIAudioEmitter";
-  parentTypes = ["OMISceneAudioEmitters", PropertyType.NODE];
-  extensionName = OMI_AUDIO_EMITTER;
+  init() {
+    this.extensionName = OMI_AUDIO_EMITTER;
+    this.propertyType = "OMIAudioEmitter";
+    this.parentTypes = ["OMISceneAudioEmitters", PropertyType.NODE];
+  }
 
-  _type = "positional";
-  _gain = 1;
-  _loop = false;
-  _autoPlay = false;
-  _coneInnerAngle = Math.PI * 2;
-  _coneOuterAngle = Math.PI * 2;
-  _coneOuterGain = 0;
-  _distanceModel = "inverse";
-  _maxDistance = 10000;
-  _refDistance = 1;
-  _rolloffFactor = 1;
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {
+      source: null,
+      type: "positional",
+      gain: 1,
+      loop: false,
+      autoPlay: false,
+      coneInnerAngle: Math.PI * 2,
+      coneOuterAngle: Math.PI * 2,
+      coneOuterGain: 0,
+      distanceModel: "inverse",
+      maxDistance: 10000,
+      refDistance: 1,
+      rolloffFactor: 1,
+    });
+  }
 
-  constructor(graph, extension) {
-    super(graph, extension);
-    this.source = GraphChild(this, "source");
+  getSource() {
+    return this.getRef('source');
   }
 
   setSource(source) {
-    this.source = this.graph.link("source", this, source);
-    return this;
-  }
-
-  copy(other, resolve = COPY_IDENTITY) {
-    super.copy(other, resolve);
-
-    this._type = other._type;
-    this._gain = other._gain;
-    this._loop = other._loop;
-    this._autoPlay = other._autoPlay;
-    this._coneInnerAngle = other._coneInnerAngle;
-    this._coneOuterAngle = other._coneOuterAngle;
-    this._coneOuterGain = other._coneOuterGain;
-    this._distanceModel = other._distanceModel;
-    this._maxDistance = other._maxDistance;
-    this._refDistance = other._refDistance;
-    this._rolloffFactor = other._rolloffFactor;
-
-    this.setSource(other.source ? resolve(other.source.getChild()) : null);
-
-    return this;
+    return this.setRef('source', source);
   }
 }
 
 export class OMIAudioSource extends ExtensionProperty {
   static EXTENSION_NAME = OMI_AUDIO_EMITTER;
-  propertyType = "OMIAudioSource";
-  // TODO: Should we also be able to place these on the root?
-  parentTypes = ["OMIAudioEmitter"];
-  extensionName = OMI_AUDIO_EMITTER;
 
-  setData(data) {
-    this._data = data;
-    return this;
+  init() {
+    this.extensionName = OMI_AUDIO_EMITTER;
+    this.propertyType = "OMIAudioSource";
+    // TODO: Should we also be able to place these on the root?
+    this.parentTypes = ["OMIAudioEmitter"];
   }
 
-  copy(other, resolve = COPY_IDENTITY) {
-    super.copy(other, resolve);
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {data: null});
+  }
 
-    // TODO: clone array buffer?
-    this._data = other._data;
+  getData() {
+    return this.get('data');
+  }
 
-    return this;
+  setData(data) {
+    this.set('data', data);
   }
 }

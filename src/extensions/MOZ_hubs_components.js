@@ -1,5 +1,4 @@
 import {
-  COPY_IDENTITY,
   Extension,
   ExtensionProperty,
   PropertyType,
@@ -34,7 +33,7 @@ export class HubsComponentsExtension extends Extension {
   }
 
   createHubsComponents() {
-    return new HubsComponents(this.doc.getGraph(), this);
+    return new HubsComponents(this.document.getGraph());
   }
 
   _migrateAudioToAudioParams(hubsComponents, audio) {
@@ -111,7 +110,7 @@ export class HubsComponentsExtension extends Extension {
         hubsComponents = this.createHubsComponents();
       }
 
-      const component = new componentClass().read(
+      const component = new componentClass(this.document.getGraph()).read(
         context,
         extension[componentName]
       );
@@ -179,7 +178,7 @@ export class HubsComponentsExtension extends Extension {
   write(context) {
     const { json } = context.jsonDoc;
 
-    const root = this.doc.getRoot();
+    const root = this.document.getRoot();
 
     // root.listScenes().forEach((scene) => {
     //   const sceneIndex = context.sceneIndexMap.get(scene);
@@ -206,54 +205,33 @@ export class HubsComponentsExtension extends Extension {
 export class HubsComponents extends ExtensionProperty {
   static EXTENSION_NAME = MOZ_HUBS_COMPONENTS;
 
-  propertyType = "HubsComponents";
-  parentTypes = [PropertyType.SCENE, PropertyType.NODE, PropertyType.MATERIAL];
-  extensionName = MOZ_HUBS_COMPONENTS;
+  init() {
+    this.extensionName = MOZ_HUBS_COMPONENTS;
+    this.propertyType = "HubsComponents";
+    this.parentTypes = [PropertyType.SCENE, PropertyType.NODE, PropertyType.MATERIAL];
+  }
 
-  _components = new Map();
+  getDefaults() {
+    return Object.assign(super.getDefaults(), {components: {}});
+  }
 
   addComponent(name, component) {
-    this._components.set(name, component);
-    return this;
+    return this.setRefMap("components", name, component);
   }
 
   getComponent(name) {
-    return this._components.get(name);
+    return this.getRefMap("components", name);
   }
 
   hasComponent(name) {
-    return this._components.has(name);
+    return !!this.getRefMap("components", name);
   }
 
   removeComponent(name) {
-    return this._components.delete(name);
+    return this.setRefMap("components", name, null);
   }
 
   getComponents() {
-    return this._components.values();
+    return this.listRefMapValues("components");
   }
-
-  copy(other, resolve = COPY_IDENTITY) {
-    super.copy(other, resolve);
-
-    this._components.clear();
-
-    for (const [name, component] of other._components) {
-      this.addComponent(name, component.clone());
-    }
-
-    return this;
-  }
-}
-
-export class HubsComponent {
-  static componentName = "";
-
-  componentName = "";
-
-  read(context) {}
-
-  write(context) {}
-
-  clone() {}
 }

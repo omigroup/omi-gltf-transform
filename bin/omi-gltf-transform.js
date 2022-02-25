@@ -64,7 +64,7 @@ async function main([_node, _script, srcPath, destPath]) {
       ]
     });
 
-  const doc = io.read(srcPath);
+  const doc = await io.read(srcPath);
 
   if (compress) {
     doc.createExtension(DracoMeshCompression)

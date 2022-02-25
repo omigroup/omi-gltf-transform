@@ -13,15 +13,15 @@ export class HubsAudioParamsComponent extends ExtensionProperty {
 
   getDefaults() {
     return Object.assign(super.getDefaults(), {
-      audioType: "stereo",
+      audioType: "pannernode",
       gain: 0.5,
       distanceModel: "inverse",
-      rolloffFactor: 1,
-      refDistance: 1,
+      rolloffFactor: 5,
+      refDistance: 5,
       maxDistance: 10000,
       coneInnerAngle: 360,
       coneOuterAngle: 0,
-      coneOuterGain: 0,
+      coneOuterGain: 0.9,
     });
   }
 

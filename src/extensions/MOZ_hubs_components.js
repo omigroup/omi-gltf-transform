@@ -37,24 +37,28 @@ export class HubsComponentsExtension extends Extension {
   }
 
   _migrateAudioToAudioParams(hubsComponents, audio) {
-    hubsComponents["audio-params"] = {
-      audioType: audio.audioType,
-      gain: audio.volume,
-      distanceModel: audio.distanceModel,
-      rolloffFactor: audio.rolloffFactor,
-      refDistance: audio.refDistance,
-      maxDistance: audio.maxDistance,
-      coneInnerAngle: audio.coneInnerAngle,
-      coneOuterAngle: audio.coneOuterAngle,
-      coneOuterGain: audio.coneOuterGain,
-    };
-
-    hubsComponents["audio"] = {
-      src: audio.src,
-      controls: audio.controls,
-      autoPlay: audio.autoPlay,
-      loop: audio.loop,
-    };
+    if (audio.audioType !== undefined) {
+      hubsComponents["audio-params"] = {
+        audioType: audio.audioType,
+        gain: audio.volume,
+        distanceModel: audio.distanceModel,
+        rolloffFactor: audio.rolloffFactor,
+        refDistance: audio.refDistance,
+        maxDistance: audio.maxDistance,
+        coneInnerAngle: audio.coneInnerAngle,
+        coneOuterAngle: audio.coneOuterAngle,
+        coneOuterGain: audio.coneOuterGain,
+      };
+  
+      hubsComponents["audio"] = {
+        src: audio.src,
+        controls: audio.controls,
+        autoPlay: audio.autoPlay,
+        loop: audio.loop,
+      };
+    } else {
+      hubsComponents["audio-params"] = {};
+    }
   }
 
   _beforeNodes(context) {

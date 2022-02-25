@@ -46,7 +46,7 @@ async function hubsToOMIAudioEmitter(doc, property, hubsComponents) {
   audioSource.setData(new Uint8Array(data));
   audioEmitter.setSource(audioSource);
   audioEmitter.set("loop", audio.get("loop"));
-  audioEmitter.set("autoPlay", audio.get("autoPlay"));
+  audioEmitter.set("playing", audio.get("autoPlay"));
 
   const audioParams = hubsComponents.getComponent("audio-params");
   audioEmitter.set("type", audioParams.get("audioType") === "pannernode" ? "positional" : "global");

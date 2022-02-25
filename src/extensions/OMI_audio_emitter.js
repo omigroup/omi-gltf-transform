@@ -103,7 +103,7 @@ export class OMIAudioEmitterExtension extends Extension {
         type: audioEmitter.get("type"),
         gain: audioEmitter.get("gain"),
         loop: audioEmitter.get("loop"),
-        autoPlay: audioEmitter.get("autoPlay"),
+        playing: audioEmitter.get("playing"),
         source: sourceIndex,
       };
 
@@ -208,7 +208,7 @@ export class OMIAudioEmitter extends ExtensionProperty {
       type: "positional",
       gain: 1,
       loop: false,
-      autoPlay: false,
+      playing: false,
       coneInnerAngle: Math.PI * 2,
       coneOuterAngle: Math.PI * 2,
       coneOuterGain: 0,
